@@ -1,6 +1,6 @@
 package com.chatbots.musicInfoBot.services.repositoryService.impl;
 
-import com.chatbots.musicInfoBot.entities.PhotoId;
+import com.chatbots.musicInfoBot.entities.Photo;
 import com.chatbots.musicInfoBot.repositories.PhotoIdRepository;
 import com.chatbots.musicInfoBot.services.repositoryService.PhotoIdRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,17 +11,17 @@ public class photoIdRepositoryServiceImpl implements PhotoIdRepositoryService {
     @Autowired
     private PhotoIdRepository photoIdRepository;
     @Override
-    public PhotoId findTop() {
+    public Photo findTop() {
         return photoIdRepository.findTopByOrderByIdDesc();
     }
 
     @Override
-    public PhotoId saveAndFlush(PhotoId photoId) {
-        return photoIdRepository.saveAndFlush(photoId);
+    public Photo saveAndFlush(Photo photo) {
+        return photoIdRepository.saveAndFlush(photo);
     }
 
     @Override
-    public void delete(PhotoId photoId) {
-        photoIdRepository.delete(photoId);
+    public void delete(Photo photo) {
+        photoIdRepository.delete(photo);
     }
 }

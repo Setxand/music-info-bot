@@ -29,10 +29,31 @@ public class CallBackParserServiceImpl implements CallBackParserService {
             case NEW_NEWS_DATA:
                 newNewsData(callBackQuery);
                 break;
+            case GALLERY_DATA:
+                galleryData(callBackQuery);
+                break;
+            case CONCERTS_DATA:
+                concertsData(callBackQuery);
+                break;
+            case BUY_TICKETS_DATA:
+                buyTicketsData(callBackQuery);
+                break;
                 default:
                     telegramMessageSenderService.errorMessage(callBackQuery.getMessage());
                     break;
         }
+    }
+
+    private void buyTicketsData(CallBackQuery callBackQuery) {
+        helperService.helpBuyTicketsCallBack(callBackQuery);
+    }
+
+    private void concertsData(CallBackQuery callBackQuery) {
+        helperService.helpConcertsDataCallBack(callBackQuery);
+    }
+
+    private void galleryData(CallBackQuery callBackQuery) {
+        helperService.galleryDataCallBack(callBackQuery);
     }
 
     private void newNewsData(CallBackQuery callBackQuery) {

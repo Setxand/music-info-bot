@@ -1,11 +1,9 @@
 package com.chatbots.musicInfoBot.services.telegramService.impl;
 
-import com.chatbots.musicInfoBot.entities.PhotoId;
+import com.chatbots.musicInfoBot.entities.Photo;
 import com.chatbots.musicInfoBot.entities.User;
-import com.chatbots.musicInfoBot.enums.Status;
 import com.chatbots.musicInfoBot.models.telegram.Message;
 import com.chatbots.musicInfoBot.models.telegram.TelegramEntity;
-import com.chatbots.musicInfoBot.models.telegram.buttons.Markup;
 import com.chatbots.musicInfoBot.services.repositoryService.PhotoIdRepositoryService;
 import com.chatbots.musicInfoBot.services.repositoryService.UserRepositoryService;
 import com.chatbots.musicInfoBot.services.telegramService.BotCommandParserService;
@@ -14,8 +12,6 @@ import com.chatbots.musicInfoBot.services.telegramService.MessageParserService;
 import com.chatbots.musicInfoBot.services.telegramService.TelegramMessageSenderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.xml.ws.soap.Addressing;
 
 import java.util.List;
 import java.util.ResourceBundle;
@@ -63,22 +59,24 @@ public class MessageParserServiceImpl implements MessageParserService {
     }
 
     private void enteringPictureStatus(Message message) {
-        try {
+
             String text = message.getText();
-            PhotoId photoId = photoIdRepositoryService.findTop();
+            Photo photo = photoIdRepositoryService.findTop();
             User user = userRepositoryService.findByChatId(message.getChat().getId());
             List<User> users = userRepositoryService.findAll();
+        try {
             for(User currentUser :users){
                 message.getChat().setId(currentUser.getChatId());
-                telegramMessageSenderService.sendPhoto(photoId.getPhotoId(),text,null,message);
+                telegramMessageSenderService.sendPhoto(photo.getFileId(),text,null,message);
                 telegramMessageSenderService.sendActions(message);
             }
             userRepositoryService.changeStatus(user,null);
+            photoIdRepositoryService.delete(photo);
 
         }
         catch (Exception ex){
-            String text = ResourceBundle.getBundle("dictionary").getString(WRONG_DATA_ENTERING.name());
-            telegramMessageSenderService.simpleMessage(text,message);
+            String mesText = ResourceBundle.getBundle("dictionary").getString(WRONG_DATA_ENTERING.name());
+            telegramMessageSenderService.simpleMessage(mesText,message);
         }
 
     }

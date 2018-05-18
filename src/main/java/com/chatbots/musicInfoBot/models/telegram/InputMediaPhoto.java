@@ -16,4 +16,10 @@ public class InputMediaPhoto implements InputMedia {
     private String caption;
     @JsonProperty("parse_mode")
     private String parseMode;
+
+    public InputMediaPhoto(String type, String media, String caption) {
+        this.type = type;
+        this.media = media;
+        this.caption = caption;
+    }
 }

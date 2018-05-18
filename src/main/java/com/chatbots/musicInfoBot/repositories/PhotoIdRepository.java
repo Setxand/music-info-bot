@@ -1,8 +1,8 @@
 package com.chatbots.musicInfoBot.repositories;
 
-import com.chatbots.musicInfoBot.entities.PhotoId;
+import com.chatbots.musicInfoBot.entities.Photo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PhotoIdRepository extends JpaRepository<PhotoId,Long> {
-    public PhotoId findTopByOrderByIdDesc();
+public interface PhotoIdRepository extends JpaRepository<Photo,Long> {
+    public Photo findTopByOrderByIdDesc();
 }

@@ -6,5 +6,7 @@ public enum Dictionary {
     NEW_NEWS_SET,
     ENTER_PICTURE,
     ENTER_TEXT,
-    WRONG_DATA_ENTERING
+    WRONG_DATA_ENTERING,
+    PHOTO_GALLERY,
+    NEWEST_VIDEOS
 }

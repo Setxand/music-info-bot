@@ -8,4 +8,7 @@ public interface HelperService {
     public void helpVideoDataCallBack(CallBackQuery callBackQuery);
     public void helpNewNewsDataCallBack(CallBackQuery callBackQuery);
     public void helpSavePhoto(Message message);
+    public void galleryDataCallBack(CallBackQuery callBackQuery);
+    public void helpConcertsDataCallBack(CallBackQuery callBackQuery);
+    public void helpBuyTicketsCallBack(CallBackQuery callBackQuery);
 }
