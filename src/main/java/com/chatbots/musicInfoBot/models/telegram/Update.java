@@ -16,4 +16,6 @@ public class Update {
     @JsonProperty("callback_query")
     private CallBackQuery callBackQuery;
     private Message message;
+    @JsonProperty("pre_checkout_query")
+    private PreCheckoutQuery preCheckoutQuery;
 }

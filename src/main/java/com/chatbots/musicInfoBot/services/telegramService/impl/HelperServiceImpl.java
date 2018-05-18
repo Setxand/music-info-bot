@@ -118,8 +118,13 @@ public class HelperServiceImpl implements HelperService {
         telegramRequest.setPayload("payload");
         telegramRequest.setPrices(Arrays.asList(new LabeledPrice("labe",5000)));
         telegramRequest.setStartParameter("pay");
-        telegramRequest.setProviderToken("pk_test_8HuDnTYLb2qD43FKLsCcdhom");
+        telegramRequest.setProviderToken("284685063:TEST:MWNkMDEwOGY3ZGM3");
         messageSenderService.sendInvoice(callBackQuery.getMessage(),telegramRequest);
+    }
+
+    @Override
+    public void helpPreCheckoutQueryHandle(PreCheckoutQuery preCheckoutQuery) {
+    messageSenderService.sendPreCheckoutQuery(preCheckoutQuery);
     }
 
     private void sendingMediaGroup(CallBackQuery callBackQuery, List<Gallery> gallery, List<InputMedia> inputMedia) {
