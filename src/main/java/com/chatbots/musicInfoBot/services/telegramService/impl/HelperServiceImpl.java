@@ -8,6 +8,7 @@ import com.chatbots.musicInfoBot.models.telegram.*;
 import com.chatbots.musicInfoBot.models.telegram.buttons.InlineKeyboardButton;
 import com.chatbots.musicInfoBot.models.telegram.buttons.InlineKeyboardMarkup;
 import com.chatbots.musicInfoBot.models.telegram.buttons.Markup;
+import com.chatbots.musicInfoBot.models.telegram.payment.LabeledPrice;
 import com.chatbots.musicInfoBot.services.repositoryService.ConcertRepositoryService;
 import com.chatbots.musicInfoBot.services.repositoryService.GalleryRepositoryService;
 import com.chatbots.musicInfoBot.services.repositoryService.PhotoIdRepositoryService;
@@ -115,7 +116,10 @@ public class HelperServiceImpl implements HelperService {
         telegramRequest.setChatId(callBackQuery.getMessage().getChat().getId());
         telegramRequest.setDescription("Desc");
         telegramRequest.setPayload("payload");
-
+        telegramRequest.setPrices(Arrays.asList(new LabeledPrice("labe",5000)));
+        telegramRequest.setStartParameter("pay");
+        telegramRequest.setProviderToken("pk_test_8HuDnTYLb2qD43FKLsCcdhom");
+        messageSenderService.sendInvoice(callBackQuery.getMessage(),telegramRequest);
     }
 
     private void sendingMediaGroup(CallBackQuery callBackQuery, List<Gallery> gallery, List<InputMedia> inputMedia) {

@@ -13,4 +13,9 @@ import lombok.Setter;
 public class LabeledPrice {
     private String label;
     private Integer amount;
+
+    public LabeledPrice(String label, Integer amount) {
+        this.label = label;
+        this.amount = amount;
+    }
 }
