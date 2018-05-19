@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ConcertRepositoryService {
     public List<Concert> findAll();
+    public Concert getOne(Long id);
 }

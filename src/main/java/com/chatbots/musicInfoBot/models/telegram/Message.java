@@ -1,5 +1,6 @@
 package com.chatbots.musicInfoBot.models.telegram;
 
+import com.chatbots.musicInfoBot.models.telegram.payment.SuccessfulPayment;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -21,5 +22,7 @@ public class Message {
     private String text;
     private List<TelegramEntity>entities;
     private List<PhotoSize>photo;
+    @JsonProperty("successful_payment")
+    private SuccessfulPayment successfulPayment;
 
 }

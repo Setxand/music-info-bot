@@ -15,4 +15,9 @@ public class ConcertRepositoryServiceImpl implements ConcertRepositoryService {
     public List<Concert> findAll() {
         return concertRepository.findAll();
     }
+
+    @Override
+    public Concert getOne(Long id) {
+        return concertRepository.getOne(id);
+    }
 }

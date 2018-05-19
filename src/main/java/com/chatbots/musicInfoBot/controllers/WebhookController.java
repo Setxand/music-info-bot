@@ -14,7 +14,7 @@ public class WebhookController {
     @Autowired
     private UpdateParserService updateParserService;
     @PostMapping
-    public void doPost(@RequestBody Update update){
+    public void doPost(@RequestBody Update update) throws Exception {
         updateParserService.parseUpdate(update);
     }
 }

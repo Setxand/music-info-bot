@@ -19,6 +19,7 @@ public class User {
     @GeneratedValue
     private Long id;
     private Integer chatId;
+    private String userName;
     private Role role;
     private Status status;
 

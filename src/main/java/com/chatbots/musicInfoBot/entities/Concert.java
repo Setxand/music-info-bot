@@ -21,5 +21,6 @@ public class Concert {
     private String city;
     private String location;
     private String dateTime;
+    private Integer price;
 
 }

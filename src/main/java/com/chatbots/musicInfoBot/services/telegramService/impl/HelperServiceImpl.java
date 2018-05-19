@@ -1,18 +1,15 @@
 package com.chatbots.musicInfoBot.services.telegramService.impl;
 
-import com.chatbots.musicInfoBot.entities.Concert;
-import com.chatbots.musicInfoBot.entities.Gallery;
-import com.chatbots.musicInfoBot.entities.Photo;
+import com.chatbots.musicInfoBot.TextFormatter;
+import com.chatbots.musicInfoBot.entities.*;
 import com.chatbots.musicInfoBot.entities.User;
+import com.chatbots.musicInfoBot.enums.Role;
 import com.chatbots.musicInfoBot.models.telegram.*;
 import com.chatbots.musicInfoBot.models.telegram.buttons.InlineKeyboardButton;
 import com.chatbots.musicInfoBot.models.telegram.buttons.InlineKeyboardMarkup;
 import com.chatbots.musicInfoBot.models.telegram.buttons.Markup;
 import com.chatbots.musicInfoBot.models.telegram.payment.LabeledPrice;
-import com.chatbots.musicInfoBot.services.repositoryService.ConcertRepositoryService;
-import com.chatbots.musicInfoBot.services.repositoryService.GalleryRepositoryService;
-import com.chatbots.musicInfoBot.services.repositoryService.PhotoIdRepositoryService;
-import com.chatbots.musicInfoBot.services.repositoryService.UserRepositoryService;
+import com.chatbots.musicInfoBot.services.repositoryService.*;
 import com.chatbots.musicInfoBot.services.telegramService.HelperService;
 import com.chatbots.musicInfoBot.services.telegramService.TelegramMessageSenderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +38,14 @@ public class HelperServiceImpl implements HelperService {
     private GalleryRepositoryService galleryRepositoryService;
     @Autowired
     private ConcertRepositoryService concertRepositoryService;
+    @Autowired
+    private DictionaryRepositoryService dictionaryRepositoryService;
     @Override
     public void helpStartBotCommand(Message message) {
 
         if (userRepositoryService.findByChatId(message.getChat().getId()) == null) {
             User user = new User(message.getChat().getId());
+            user.setUserName(message.getChat().getUserName());
             userRepositoryService.saveAndFlush(user);
 
         }
@@ -65,7 +65,7 @@ public class HelperServiceImpl implements HelperService {
             text.append(g.getCaption()+"\n\n"+g.getMedia());
             messageSenderService.simpleMessage(text.toString(), callBackQuery.getMessage());
         }
-        messageSenderService.sendActions(callBackQuery.getMessage());
+        messageSenderService.simpleMessage("/help",callBackQuery.getMessage());
 
     }
 
@@ -92,7 +92,7 @@ public class HelperServiceImpl implements HelperService {
         String text = ResourceBundle.getBundle("dictionary").getString(PHOTO_GALLERY.name());
         messageSenderService.simpleMessage(text,callBackQuery.getMessage());
         sendingMediaGroup(callBackQuery, gallery, inputMedia);
-        messageSenderService.sendActions(callBackQuery.getMessage());
+        messageSenderService.simpleMessage("/help",callBackQuery.getMessage());
     }
 
     @Override
@@ -102,21 +102,24 @@ public class HelperServiceImpl implements HelperService {
         Markup markup;
         for(Concert concert:concerts){
             String caption = concert.getCity()+", "+concert.getCountry()+"\n"+concert.getLocation()+"\n"+concert.getDateTime();
-            markup = new InlineKeyboardMarkup(Arrays.asList(Arrays.asList(new InlineKeyboardButton(buttonText,BUY_TICKETS_DATA.name()))));
+            markup = new InlineKeyboardMarkup(Arrays.asList(Arrays.asList(new InlineKeyboardButton(buttonText,BUY_TICKETS_DATA.name()+"?"+concert.getId()))));
             messageSenderService.sendPhoto(concert.getPhoto(),caption,markup,callBackQuery.getMessage());
         }
-        messageSenderService.sendActions(callBackQuery.getMessage());
+        messageSenderService.simpleMessage("/help",callBackQuery.getMessage());
     }
 
     @Override
     public void helpBuyTicketsCallBack(CallBackQuery callBackQuery) {
+        long id = Long.parseLong(TextFormatter.ejectSingleVariable(callBackQuery.getData()));
+        Concert concert = concertRepositoryService.getOne(id);
+
         TelegramRequest telegramRequest = new TelegramRequest();
         telegramRequest.setCurrency("USD");
-        telegramRequest.setTitle("music info bot");
+        telegramRequest.setTitle("Music info bot");
         telegramRequest.setChatId(callBackQuery.getMessage().getChat().getId());
-        telegramRequest.setDescription("Desc");
-        telegramRequest.setPayload("payload");
-        telegramRequest.setPrices(Arrays.asList(new LabeledPrice("labe",5000)));
+        telegramRequest.setDescription("Ticket in "+concert.getCity());
+        telegramRequest.setPayload(concert.getId().toString());
+        telegramRequest.setPrices(Arrays.asList(new LabeledPrice("labe",concert.getPrice())));
         telegramRequest.setStartParameter("pay");
         telegramRequest.setProviderToken("284685063:TEST:MWNkMDEwOGY3ZGM3");
         messageSenderService.sendInvoice(callBackQuery.getMessage(),telegramRequest);
@@ -125,6 +128,75 @@ public class HelperServiceImpl implements HelperService {
     @Override
     public void helpPreCheckoutQueryHandle(PreCheckoutQuery preCheckoutQuery) {
     messageSenderService.sendPreCheckoutQuery(preCheckoutQuery);
+    }
+
+    @Override
+    public void successfulPayment(Message message) {
+        Long payload = Long.parseLong(message.getSuccessfulPayment().getInvoicePayload());
+        Concert concert = concertRepositoryService.getOne(payload);
+        messageSenderService.sendPhoto("https://cdnqrcgde.s3-eu-west-1.amazonaws.com/wp-content/uploads/2013/11/jpeg.jpg","Your ticket. Please don`t send it to anybody.",null,message);
+        messageSenderService.simpleMessage("/help",message);
+    }
+
+    @Override
+    public void helpMessageCommand(Message message) {
+        String[] strings = message.getText().split("&");
+        if (strings.length == 2) {
+            if (strings[0].equals("setpermission"))
+                setRole(message, strings);
+            else
+                wrongPerm(message);
+        } else if (strings.length == 3) {
+            if (strings[0].equals("sethellomessage"))
+                setHelloMessage(message, strings);
+            else
+                wrongHelloMsg(message);
+        } else
+            messageSenderService.errorMessage(message);
+    }
+
+    private void wrongHelloMsg(Message message) {
+    }
+
+    private void setHelloMessage(Message message, String[] strings) {
+        String image = strings[1];
+        String text = strings[2];
+        Dictionary dictionary = dictionaryRepositoryService.findById(HELLO_MESSAGE.name());
+        dictionary.setValue(text);
+        dictionary.setPhotoUrl(image);
+        dictionaryRepositoryService.saveAndFlush(dictionary);
+        messageSenderService.simpleMessage(ResourceBundle.getBundle("dictionary").getString(DONE.name()),message);
+    }
+
+
+    private void wrongPerm(Message message){
+        String text = ResourceBundle.getBundle("dictionary").getString(SOMETHING_WRONG_ROLE.name());
+        messageSenderService.simpleMessage(text,message);
+    }
+
+    private void setRole(Message message, String[] strings) {
+        String userName = strings[1] ;
+
+        if(userRepositoryService.findByUserName(userName)!=null) {
+            setRoleFinal(userName,message);
+        }
+        else {
+            String text = ResourceBundle.getBundle("dictionary").getString(USER_NAME_NOT_EXISTS.name());
+            messageSenderService.simpleMessage(text,message);
+        }
+    }
+
+    private void setRoleFinal(String userName, Message message) {
+        User user = userRepositoryService.findByUserName(userName);
+        if(user.getRole()==null || user.getRole() == Role.CUSTOMER)
+        user.setRole(Role.MODERATOR);
+        else user.setRole(Role.CUSTOMER);
+        userRepositoryService.saveAndFlush(user);
+        String done = ResourceBundle.getBundle("dictionary").getString(DONE.name());
+        messageSenderService.simpleMessage(done+" /help",message);
+        String userNameSet = String.format(ResourceBundle.getBundle("dictionary").getString(ROLE_SET.name()),user.getRole().name());
+        message.getChat().setId(user.getChatId());
+        messageSenderService.simpleMessage(userNameSet+" /help",message);
     }
 
     private void sendingMediaGroup(CallBackQuery callBackQuery, List<Gallery> gallery, List<InputMedia> inputMedia) {

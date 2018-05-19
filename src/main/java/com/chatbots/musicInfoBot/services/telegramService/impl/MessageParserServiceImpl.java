@@ -31,6 +31,7 @@ public class MessageParserServiceImpl implements MessageParserService {
     private PhotoIdRepositoryService photoIdRepositoryService;
     @Autowired
     private TelegramMessageSenderService telegramMessageSenderService;
+
     @Override
     public void parseMessage(Message message) {
         User user = userRepositoryService.findByChatId(message.getChat().getId());
@@ -46,6 +47,15 @@ public class MessageParserServiceImpl implements MessageParserService {
 
         if(message.getPhoto()!=null && user.getStatus()==ENTERING_PICTURE_STATUS){
             helperService.helpSavePhoto(message);
+            return;
+        }
+
+        if(message.getSuccessfulPayment()!=null){
+            helperService.successfulPayment(message);
+            return;
+        }
+        if(user.getStatus()==null){
+            helperService.helpMessageCommand(message);
             return;
         }
         switch (user.getStatus()){
@@ -68,7 +78,7 @@ public class MessageParserServiceImpl implements MessageParserService {
             for(User currentUser :users){
                 message.getChat().setId(currentUser.getChatId());
                 telegramMessageSenderService.sendPhoto(photo.getFileId(),text,null,message);
-                telegramMessageSenderService.sendActions(message);
+                telegramMessageSenderService.simpleMessage("/help",message);
             }
             userRepositoryService.changeStatus(user,null);
             photoIdRepositoryService.delete(photo);

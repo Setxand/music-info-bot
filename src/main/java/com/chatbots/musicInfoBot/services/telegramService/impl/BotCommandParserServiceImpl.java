@@ -22,10 +22,17 @@ public class BotCommandParserServiceImpl implements BotCommandParserService {
             case START:
                 start(message);
                 break;
+            case HELP:
+                help(message);
+                break;
                 default:
                     telegramMessageSenderService.errorMessage(message);
                     break;
         }
+    }
+
+    private void help(Message message) {
+        telegramMessageSenderService.sendActions(message);
     }
 
     private void start(Message message) {

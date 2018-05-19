@@ -1,6 +1,7 @@
 package com.chatbots.musicInfoBot.services.telegramService.impl;
 
 
+import com.chatbots.musicInfoBot.TextFormatter;
 import com.chatbots.musicInfoBot.enums.CallBackData;
 import com.chatbots.musicInfoBot.models.telegram.CallBackQuery;
 import com.chatbots.musicInfoBot.services.telegramService.CallBackParserService;
@@ -22,7 +23,7 @@ public class CallBackParserServiceImpl implements CallBackParserService {
     private TelegramMessageSenderService telegramMessageSenderService;
     @Override
     public void parseCallBackQuery(CallBackQuery callBackQuery) {
-        switch (CallBackData.valueOf(callBackQuery.getData())){
+        switch (CallBackData.valueOf(TextFormatter.ejectPaySinglePayload(callBackQuery.getData()))){
             case VIDEO_DATA:
                 videoData(callBackQuery);
                 break;
