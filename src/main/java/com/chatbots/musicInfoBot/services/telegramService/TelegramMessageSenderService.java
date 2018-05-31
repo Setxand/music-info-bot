@@ -3,12 +3,13 @@ package com.chatbots.musicInfoBot.services.telegramService;
 
 
 import com.chatbots.musicInfoBot.enums.CallBackData;
+import com.chatbots.musicInfoBot.models.telegram.InputMedia;
+import com.chatbots.musicInfoBot.models.telegram.PreCheckoutQuery;
+import com.chatbots.musicInfoBot.models.telegram.payment.Invoice;
 import com.chatbots.musicInfoBot.models.telegram.Message;
 import com.chatbots.musicInfoBot.models.telegram.TelegramRequest;
 import com.chatbots.musicInfoBot.models.telegram.buttons.InlineKeyboardButton;
-import com.chatbots.musicInfoBot.models.telegram.buttons.KeyboardButton;
 import com.chatbots.musicInfoBot.models.telegram.buttons.Markup;
-import javafx.application.Platform;
 
 import java.util.List;
 
@@ -24,5 +25,7 @@ public interface TelegramMessageSenderService {
     public void simpleQuestion(CallBackData data, String splitter, String text, Message message);
     public void noEnoughPermissions(Message message);
     public void sendVideo(Message message, String url);
-
+    public void sendGroupMedia(List<InputMedia>media,Message message);
+    public void sendInvoice(Message message, TelegramRequest telegramRequest);
+    public void sendPreCheckoutQuery(PreCheckoutQuery preCheckoutQuery);
 }

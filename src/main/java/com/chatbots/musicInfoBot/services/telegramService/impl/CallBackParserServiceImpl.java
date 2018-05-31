@@ -1,6 +1,7 @@
 package com.chatbots.musicInfoBot.services.telegramService.impl;
 
 
+import com.chatbots.musicInfoBot.TextFormatter;
 import com.chatbots.musicInfoBot.enums.CallBackData;
 import com.chatbots.musicInfoBot.models.telegram.CallBackQuery;
 import com.chatbots.musicInfoBot.services.telegramService.CallBackParserService;
@@ -22,17 +23,38 @@ public class CallBackParserServiceImpl implements CallBackParserService {
     private TelegramMessageSenderService telegramMessageSenderService;
     @Override
     public void parseCallBackQuery(CallBackQuery callBackQuery) {
-        switch (CallBackData.valueOf(callBackQuery.getData())){
+        switch (CallBackData.valueOf(TextFormatter.ejectPaySinglePayload(callBackQuery.getData()))){
             case VIDEO_DATA:
                 videoData(callBackQuery);
                 break;
             case NEW_NEWS_DATA:
                 newNewsData(callBackQuery);
                 break;
+            case GALLERY_DATA:
+                galleryData(callBackQuery);
+                break;
+            case CONCERTS_DATA:
+                concertsData(callBackQuery);
+                break;
+            case BUY_TICKETS_DATA:
+                buyTicketsData(callBackQuery);
+                break;
                 default:
                     telegramMessageSenderService.errorMessage(callBackQuery.getMessage());
                     break;
         }
+    }
+
+    private void buyTicketsData(CallBackQuery callBackQuery) {
+        helperService.helpBuyTicketsCallBack(callBackQuery);
+    }
+
+    private void concertsData(CallBackQuery callBackQuery) {
+        helperService.helpConcertsDataCallBack(callBackQuery);
+    }
+
+    private void galleryData(CallBackQuery callBackQuery) {
+        helperService.galleryDataCallBack(callBackQuery);
     }
 
     private void newNewsData(CallBackQuery callBackQuery) {

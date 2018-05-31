@@ -1,11 +1,14 @@
 package com.chatbots.musicInfoBot.models.telegram;
 
     import com.chatbots.musicInfoBot.models.telegram.buttons.Markup;
-import com.fasterxml.jackson.annotation.JsonInclude;
+    import com.chatbots.musicInfoBot.models.telegram.payment.LabeledPrice;
+    import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+    import java.util.List;
 
 @Getter
 @Setter
@@ -21,6 +24,19 @@ public class TelegramRequest {
     private String photo;
     private String caption;
     private String video;
+    private List<InputMedia> media;
+    private String title;
+    private String description;
+    private String payload;
+    @JsonProperty("provider_token")
+    private String providerToken;
+    @JsonProperty("start_parameter")
+    private String startParameter;
+    private String currency;
+    private List<LabeledPrice>prices;
+    public TelegramRequest(Integer chatId) {
+        this.chatId = chatId;
+    }
 
     public TelegramRequest(String text, Integer chatId) {
         this.text = text;

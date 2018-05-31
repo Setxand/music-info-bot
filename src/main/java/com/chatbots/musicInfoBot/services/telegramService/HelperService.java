@@ -2,10 +2,17 @@ package com.chatbots.musicInfoBot.services.telegramService;
 
 import com.chatbots.musicInfoBot.models.telegram.CallBackQuery;
 import com.chatbots.musicInfoBot.models.telegram.Message;
+import com.chatbots.musicInfoBot.models.telegram.PreCheckoutQuery;
 
 public interface HelperService {
-    public void helpStartBotCommand(Message message);
-    public void helpVideoDataCallBack(CallBackQuery callBackQuery);
-    public void helpNewNewsDataCallBack(CallBackQuery callBackQuery);
-    public void helpSavePhoto(Message message);
+    void helpStartBotCommand(Message message);
+    void helpVideoDataCallBack(CallBackQuery callBackQuery);
+    void helpNewNewsDataCallBack(CallBackQuery callBackQuery);
+    void helpSavePhoto(Message message);
+    void galleryDataCallBack(CallBackQuery callBackQuery);
+    void helpConcertsDataCallBack(CallBackQuery callBackQuery);
+    void helpBuyTicketsCallBack(CallBackQuery callBackQuery);
+    void helpPreCheckoutQueryHandle(PreCheckoutQuery preCheckoutQuery);
+    void successfulPayment(Message message);
+    void helpMessageCommand(Message message);
 }

@@ -1,7 +1,5 @@
 package com.chatbots.musicInfoBot.entities;
 
-import com.chatbots.musicInfoBot.enums.Role;
-import com.chatbots.musicInfoBot.enums.Status;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,16 +12,13 @@ import javax.persistence.Id;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class Photo {
     @Id
     @GeneratedValue
     private Long id;
-    private Integer chatId;
-    private String userName;
-    private Role role;
-    private Status status;
+    private String fileId;
 
-    public User(Integer chatId) {
-        this.chatId = chatId;
+    public Photo(String fileId) {
+        this.fileId = fileId;
     }
 }

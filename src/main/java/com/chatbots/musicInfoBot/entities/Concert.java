@@ -12,13 +12,15 @@ import javax.persistence.Id;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PhotoId {
+public class Concert {
     @Id
     @GeneratedValue
     private Long id;
-    private String photoId;
+    private String photo;
+    private String country;
+    private String city;
+    private String location;
+    private String dateTime;
+    private Integer price;
 
-    public PhotoId(String photoId) {
-        this.photoId = photoId;
-    }
 }

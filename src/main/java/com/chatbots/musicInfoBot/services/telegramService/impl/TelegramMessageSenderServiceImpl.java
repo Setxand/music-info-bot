@@ -1,13 +1,18 @@
 package com.chatbots.musicInfoBot.services.telegramService.impl;
 
 
+import com.chatbots.musicInfoBot.entities.User;
 import com.chatbots.musicInfoBot.enums.CallBackData;
 import com.chatbots.musicInfoBot.enums.Role;
+import com.chatbots.musicInfoBot.enums.speaker.Dictionary;
+import com.chatbots.musicInfoBot.models.telegram.InputMedia;
 import com.chatbots.musicInfoBot.models.telegram.Message;
+import com.chatbots.musicInfoBot.models.telegram.PreCheckoutQuery;
 import com.chatbots.musicInfoBot.models.telegram.TelegramRequest;
 import com.chatbots.musicInfoBot.models.telegram.buttons.InlineKeyboardButton;
 import com.chatbots.musicInfoBot.models.telegram.buttons.InlineKeyboardMarkup;
 import com.chatbots.musicInfoBot.models.telegram.buttons.Markup;
+import com.chatbots.musicInfoBot.services.repositoryService.DictionaryRepositoryService;
 import com.chatbots.musicInfoBot.services.repositoryService.UserRepositoryService;
 import com.chatbots.musicInfoBot.services.telegramService.TelegramMessageSenderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +26,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import static com.chatbots.musicInfoBot.enums.CallBackData.*;
-import static com.chatbots.musicInfoBot.enums.speaker.Buttons.NO;
-import static com.chatbots.musicInfoBot.enums.speaker.Buttons.YES;
+import static com.chatbots.musicInfoBot.enums.speaker.Buttons.*;
 import static com.chatbots.musicInfoBot.enums.speaker.Dictionary.*;
 
 
@@ -30,6 +34,8 @@ import static com.chatbots.musicInfoBot.enums.speaker.Dictionary.*;
 public class TelegramMessageSenderServiceImpl implements TelegramMessageSenderService {
     @Autowired
     private UserRepositoryService userRepositoryService;
+    @Autowired
+    private DictionaryRepositoryService dictionaryRepositoryService;
     @Value("${url.telegram}")
     private String TELEGRAM_URL;
     @Value("${url.server}")
@@ -48,9 +54,10 @@ public class TelegramMessageSenderServiceImpl implements TelegramMessageSenderSe
 
     @Override
     public void helloMessage(Message message) {
-        String messange = ResourceBundle.getBundle("dictionary").getString(HELLO_MESSAGE.name());
-        int chatId = message.getChat().getId();
-        sendMessage(new TelegramRequest(messange, chatId));
+        com.chatbots.musicInfoBot.entities.Dictionary dictionary = dictionaryRepositoryService.findById(HELLO_MESSAGE.name());
+        String text = dictionary.getValue();
+        String photoUrl = dictionary.getPhotoUrl();
+        sendPhoto(photoUrl,text,null,message);
     }
 
     @Override
@@ -91,8 +98,12 @@ public class TelegramMessageSenderServiceImpl implements TelegramMessageSenderSe
     public void sendActions(Message message) {
         List<List<InlineKeyboardButton>> inlineKeyboardButtons = new ArrayList<>();
 
-        inlineKeyboardButtons.add(new ArrayList<>(Arrays.asList(new InlineKeyboardButton("Video", VIDEO_DATA.name()))));
-        if (userRepositoryService.findByChatId(message.getChat().getId()) != null && userRepositoryService.findByChatId(message.getChat().getId()).getRole() == Role.ADMIN) {
+        inlineKeyboardButtons.add(new ArrayList<>(Arrays.asList(new InlineKeyboardButton(ResourceBundle.getBundle("buttons").getString(VIDEO_BUTTON.name()), VIDEO_DATA.name()))));
+        inlineKeyboardButtons.add(new ArrayList<>(Arrays.asList(new InlineKeyboardButton(ResourceBundle.getBundle("buttons").getString(CONCERTS_BUTTON.name()), CONCERTS_DATA.name()))));
+        inlineKeyboardButtons.add(new ArrayList<>(Arrays.asList(new InlineKeyboardButton(ResourceBundle.getBundle("buttons").getString(GALLERY_BUTTON.name()), GALLERY_DATA.name()))));
+        if (userRepositoryService.findByChatId(message.getChat().getId()) != null ) {
+            User user = userRepositoryService.findByChatId(message.getChat().getId());
+            if(user.getRole()== Role.ADMIN || user.getRole() == Role.MODERATOR)
             inlineKeyboardButtons.add(new ArrayList<>(Arrays.asList(new InlineKeyboardButton(ResourceBundle.getBundle("dictionary").getString(NEW_NEWS_SET.name()), NEW_NEWS_DATA.name()))));
         }
         String text = ResourceBundle.getBundle("dictionary").getString(CHOOSE_ACTIONS.name());
@@ -117,8 +128,26 @@ public class TelegramMessageSenderServiceImpl implements TelegramMessageSenderSe
 
     @Override
     public void sendVideo(Message message, String url) {
-        String telegramUrl = TELEGRAM_URL;
-        new RestTemplate().postForEntity(telegramUrl + "/sendVideo", new TelegramRequest(message.getChat().getId(), url), Void.class);
+        new RestTemplate().postForEntity(TELEGRAM_URL + "/sendVideo", new TelegramRequest(message.getChat().getId(), url), Void.class);
+    }
+
+    @Override
+    public void sendGroupMedia(List<InputMedia> media, Message message) {
+        TelegramRequest telegramRequest = new TelegramRequest();
+        telegramRequest.setMedia(media);
+        telegramRequest.setChatId(message.getChat().getId());
+        new RestTemplate().postForEntity(TELEGRAM_URL + "/sendMediaGroup", telegramRequest, Void.class);
+    }
+
+    @Override
+    public void sendInvoice(Message message, TelegramRequest telegramRequest) {
+        new RestTemplate().postForEntity(TELEGRAM_URL + "/sendInvoice", telegramRequest, Void.class);
+    }
+
+    @Override
+    public void sendPreCheckoutQuery(PreCheckoutQuery preCheckoutQuery) {
+        String url = TELEGRAM_URL+"/answerPreCheckoutQuery?pre_checkout_query_id="+preCheckoutQuery.getId()+"&ok="+true;
+        new RestTemplate().getForEntity(url,Void.class);
     }
 
 
